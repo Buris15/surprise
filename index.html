@@ -505,7 +505,6 @@
 
                             // When last flame hides, launch confetti and play sound
                             if (index === flames.length - 1) {
-                                // Give a small delay to ensure last flame is fully hidden before confetti
                                 setTimeout(() => {
                                     launchConfetti(100);
 
@@ -515,11 +514,17 @@
                                         sound.play().catch(err => console.log('Autoplay blocked:', err));
                                     }
 
-                                }, 300);
+                                    // 🌟 Show heart here after last flame
+                                    setTimeout(() => {
+                                        $(".heart").fadeIn(500).addClass("beating");
+                                    }, 4000);
+
+                                }, 300); // wait a bit to ensure animation finishes
                             }
                         }, index * delay);
                     });
                 }
+
 
 
 
@@ -561,15 +566,6 @@
             confetti.style.animationDuration = (2 + Math.random() * 3) + 's';
             return confetti;
         }
-
-        // Start continuous confetti
-        setInterval(() => {
-            launchConfetti(10);
-        }, 5000);
-        // Wait 2.5 seconds (duration of confetti fall animation) then show the heart
-        setTimeout(() => {
-            $('.heart').fadeIn(1000); // fade in the heart over 1 second
-        }, 10000);
     </script>
     <script>
         $(document).ready(() => {
