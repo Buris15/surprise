@@ -488,7 +488,7 @@
 
 
     <script>
-       const flames = Array.from(document.querySelectorAll('.flame'));
+        const flames = Array.from(document.querySelectorAll('.flame'));
 
 
         navigator.mediaDevices.getUserMedia({
@@ -541,7 +541,7 @@
                     analyser.getByteFrequencyData(dataArray);
                     const average = dataArray.reduce((acc, val) => acc + val, 0) / bufferLength;
 
-                    if (average > 200 && !blownOut) {
+                    if (average > 50 && !blownOut) {
                         blownOut = true;
                         blowOutFlamesOneByOne();
                     }
@@ -554,7 +554,6 @@
             .catch((err) => {
                 console.error('Microphone access denied or error:', err);
             });
-
 
         function launchConfetti(count) {
             const confettiContainer = document.getElementById('confetti');
