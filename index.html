@@ -83,8 +83,6 @@
             animation-play-state: running;
         }
         
-        #messageState {}
-        
         @keyframes beat {
             0% {
                 width: 50px;
@@ -382,6 +380,33 @@
                 transform: translateY(100vh) rotate(360deg);
             }
         }
+        
+        #usernameInput,
+        #wishInput {
+            display: block;
+            /* Make both inputs behave like block elements */
+            margin-left: auto;
+            /* Center horizontally */
+            margin-right: auto;
+        }
+        
+        #usernameInput {
+            margin-bottom: 12px;
+            margin-right: 855px;
+            /* Add space below username input */
+            width: 40%;
+            /* Keep desired width */
+            max-width: 200px;
+        }
+        
+        #wishInput {
+            width: 80%;
+            max-width: 400px;
+            height: 60px;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+        }
     </style>
 </head>
 
@@ -471,14 +496,23 @@
             <p>secret lng muna</p>
         </div>
     </div>
-    <div style="margin-top: 40px; text-align: center;">
-        <h2 style="font-family: Comic Sans MS; color: white;">🎉 Leave a Birthday Wish 🎉</h2>
-        <textarea id="wishInput" placeholder="Type your birthday wish here..." style="width: 80%; max-width: 400px; height: 60px; font-family: Comic Sans MS; padding: 10px;"></textarea><br>
-        <button onclick="addWish()" style="margin-top: 10px; font-family: Comic Sans MS; background-color: skyblue; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer;">
+    <div style="margin-top: 40px; text-align: center; color: white; font-family: 'Comic Sans MS', cursive;">
+        <h2>🎉 Leave a Birthday Wish 🎉</h2>
+
+        <input id="usernameInput" type="text" placeholder="Your name" style="width: 40%; max-width: 100px; padding: 8px; border-radius: 8px; border: none; margin-bottom: 8px; font-family: Comic Sans MS;">
+
+        <textarea id="wishInput" placeholder="Type your birthday wish here..." style="width: 80%; max-width: 400px; height: 60px; padding: 10px; border-radius: 8px; border: none; font-family: Comic Sans MS;"></textarea><br>
+
+        <button onclick="addWish()" style="margin-top: 10px; background-color: skyblue; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-family: Comic Sans MS;">
         Post Wish
     </button>
-        <div id="wishWall" style="margin-top: 20px; max-height: 300px; overflow-y: auto; color: white; font-family: Comic Sans MS;"></div>
+
+        <div id="wishWall" style="margin-top: 20px; max-height: 300px; overflow-y: auto; color: white; font-family: Comic Sans MS; text-align: left; padding: 0 10px;">
+        </div>
     </div>
+
+
+
 
     <script>
         const flames = Array.from(document.querySelectorAll('.flame'));
@@ -608,8 +642,15 @@
 
         async function addWish() {
             const wishInput = document.getElementById('wishInput');
+            const usernameInput = document.getElementById('usernameInput');
             const wishWall = document.getElementById('wishWall');
             const wishText = wishInput.value.trim();
+            const usernameText = usernameInput.value.trim();
+
+            if (usernameText === '') {
+                alert('Please enter your name before posting!');
+                return;
+            }
 
             if (wishText === '') {
                 alert('Please enter a wish before posting!');
@@ -617,26 +658,28 @@
             }
 
             try {
-                // Send wish to backend API
+                // Send wish and username to backend API
                 const response = await fetch('api/sendWish', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        wish: wishText
+                        wish: wishText,
+                        username: usernameText
                     })
                 });
                 const result = await response.json();
                 if (response.ok) {
-                    // Show the wish on the page (optional)
+                    // Show the wish and username on the page
                     const newWish = document.createElement('div');
-                    newWish.textContent = "🎂 " + wishText;
                     newWish.style.marginBottom = "10px";
+                    newWish.innerHTML = `<strong>${usernameText}</strong>: 🎂 ${wishText}`;
                     wishWall.appendChild(newWish);
 
-                    // Clear the textarea
+                    // Clear inputs
                     wishInput.value = '';
+                    usernameInput.value = '';
 
                     alert(result.message); // "Wish sent!"
                 } else {
