@@ -541,7 +541,7 @@
                     analyser.getByteFrequencyData(dataArray);
                     const average = dataArray.reduce((acc, val) => acc + val, 0) / bufferLength;
 
-                    if (average > 50 && !blownOut) {
+                    if (average > 200 && !blownOut) {
                         blownOut = true;
                         blowOutFlamesOneByOne();
                     }
