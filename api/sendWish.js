@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
-        const { wish } = req.body;
+          const { wish, username } = req.body;
         console.log("Received wish:", wish);
         console.log("From user:", username);
 
