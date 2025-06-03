@@ -382,40 +382,10 @@
                 transform: translateY(100vh) rotate(360deg);
             }
         }
-        
-        #micButtonContainer {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 9999;
-            text-align: center;
-        }
-        
-        #startMicBtn {
-            padding: 12px 24px;
-            font-size: 18px;
-            background-color: #ff6f61;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-family: Comic Sans MS, cursive;
-        }
-        
-        #startMicBtn:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
     </style>
 </head>
 
 <body>
-    <div id="micButtonContainer">
-        <button id="startMicBtn" onclick="document.getElementById('micButtonContainer').style.display='none'">
-        Start Microphone
-    </button>
-    </div>
     <audio id="celebrationSound" preload="auto">
   <source src="audio/18.mp3" type="audio/mpeg" />
   <source src="audio/18.ogg" type="audio/ogg" />
@@ -501,10 +471,7 @@
 	</label>
         <div class="message">
             <h1>Hi, Ladyboss</h1>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras dui ante, venenatis et neque eget, volutpat auctor sem. Phasellus molestie magna quis justo pharetra aliquet. Curabitur tempor efficitur nisl a euismod. Mauris tincidunt lorem vel
-                quam aliquam tincidunt. Nullam sed convallis neque, sit amet scelerisque odio. Proin eu lectus et felis convallis dapibus. Vestibulum facilisis, magna non rutrum gravida, urna ipsum ornare enim, at venenatis sem risus nec est. Mauris enim
-                tortor, rutrum vestibulum cursus eu, efficitur a elit. In maximus mattis euismod. Sed tempus arcu in ultricies condimentum. Vestibulum eu elit quis sapien pulvinar lacinia vitae sit amet augue. Cras massa dolor, egestas sit amet turpis
-                porta, euismod cursus ex. Pellentesque luctus diam eget eros suscipit semper. Sed elementum porta placerat. Cras vulputate justo eros. Aliquam fermentum arcu sed lacus tristique aliquet.</p>
+            <p>secret lng muna</p>
         </div>
     </div>
     <div style="margin-top: 40px; text-align: center;">
@@ -517,27 +484,15 @@
     </div>
 
 
-
-
-
-
     <script>
         const flames = Array.from(document.querySelectorAll('.flame'));
-        let blownOut = false;
 
 
-        document.getElementById('startMicBtn').addEventListener('click', async() => {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    audio: true
-                });
+        navigator.mediaDevices.getUserMedia({
+                audio: true
+            })
+            .then((stream) => {
                 const audioContext = new AudioContext();
-
-                // Resume AudioContext if suspended (common on mobile)
-                if (audioContext.state === 'suspended') {
-                    await audioContext.resume();
-                }
-
                 const analyser = audioContext.createAnalyser();
                 const microphone = audioContext.createMediaStreamSource(stream);
                 microphone.connect(analyser);
@@ -545,29 +500,43 @@
                 const bufferLength = analyser.frequencyBinCount;
                 const dataArray = new Uint8Array(bufferLength);
 
+                let blownOut = false;
+
                 function blowOutFlamesOneByOne() {
                     flames.forEach((flame, index) => {
+                        // Randomize delay around 0.1s (+- 50ms)
                         const delay = 100 + (Math.random() - 0.5) * 100;
                         setTimeout(() => {
                             flame.classList.add('hidden');
+
+                            // When last flame hides, launch confetti and play sound
                             if (index === flames.length - 1) {
                                 setTimeout(() => {
                                     launchConfetti(100);
+
+                                    // Play celebration sound
                                     const sound = document.getElementById('celebrationSound');
-                                    if (sound) sound.play().catch(err => console.log('Autoplay blocked:', err));
+                                    if (sound) {
+                                        sound.play().catch(err => console.log('Autoplay blocked:', err));
+                                    }
+
+                                    // 🌟 Show heart here after last flame
                                     setTimeout(() => {
                                         $(".heart").fadeIn(500).addClass("beating");
                                     }, 4000);
-                                }, 300);
+
+                                }, 300); // wait a bit to ensure animation finishes
                             }
                         }, index * delay);
                     });
                 }
 
+
+
+
                 function detectBlow() {
                     analyser.getByteFrequencyData(dataArray);
                     const average = dataArray.reduce((acc, val) => acc + val, 0) / bufferLength;
-                    console.log('Average mic level:', average); // Debug mic input level
 
                     if (average > 100 && !blownOut) {
                         blownOut = true;
@@ -578,15 +547,11 @@
                 }
 
                 detectBlow();
-
-                // Disable start button after mic started
-                document.getElementById('startMicBtn').disabled = true;
-
-            } catch (err) {
+            })
+               .catch((err) => {
                 alert('Mic access denied or not working. Please allow microphone permissions.');
                 console.error('Microphone access denied or error:', err);
-            }
-        });
+            });
 
         function launchConfetti(count) {
             const confettiContainer = document.getElementById('confetti');
@@ -620,6 +585,7 @@
             }
 
             try {
+                // Send wish to backend API
                 const response = await fetch('api/sendWish', {
                     method: 'POST',
                     headers: {
@@ -633,12 +599,16 @@
                 const result = await response.json();
 
                 if (response.ok) {
+                    // Show the wish on the page (optional)
                     const newWish = document.createElement('div');
                     newWish.textContent = "🎂 " + wishText;
                     newWish.style.marginBottom = "10px";
                     wishWall.appendChild(newWish);
+
+                    // Clear the textarea
                     wishInput.value = '';
-                    alert(result.message);
+
+                    alert(result.message); // "Wish sent!"
                 } else {
                     alert('Failed to send wish: ' + result.message);
                 }
@@ -648,7 +618,6 @@
             }
         }
     </script>
-
     <script>
         $(document).ready(() => {
             $("#messageState").on("change", (x) => {
