@@ -488,7 +488,7 @@
 
 
     <script>
-        const flames = Array.from(document.querySelectorAll('.flame'));
+       const flames = Array.from(document.querySelectorAll('.flame'));
 
 
         navigator.mediaDevices.getUserMedia({
@@ -505,31 +505,36 @@
 
                 let blownOut = false;
 
-              function blowOutFlamesOneByOne() {
-  flames.forEach((flame, index) => {
-    const delay = 100 + (Math.random() - 0.5) * 100;
-    setTimeout(() => {
-      flame.classList.add('hidden');
+                function blowOutFlamesOneByOne() {
+                    flames.forEach((flame, index) => {
+                        // Randomize delay around 0.1s (+- 50ms)
+                        const delay = 100 + (Math.random() - 0.5) * 100;
+                        setTimeout(() => {
+                            flame.classList.add('hidden');
 
-      if (index === flames.length - 1) {
-        setTimeout(() => {
-          launchConfetti(100);
+                            // When last flame hides, launch confetti and play sound
+                            if (index === flames.length - 1) {
+                                setTimeout(() => {
+                                    launchConfetti(100);
 
-          const sound = document.getElementById('celebrationSound');
-          if (sound) {
-            sound.play().catch(err => console.log('Autoplay blocked:', err));
-          }
+                                    // Play celebration sound
+                                    const sound = document.getElementById('celebrationSound');
+                                    if (sound) {
+                                        sound.play().catch(err => console.log('Autoplay blocked:', err));
+                                    }
 
-          setTimeout(() => {
-            $(".heart").fadeIn(500).addClass("beating");
-          }, 4000);
+                                    // 🌟 Show heart here after last flame
+                                    setTimeout(() => {
+                                        $(".heart").fadeIn(500).addClass("beating");
+                                    }, 4000);
 
-        }, 300);
-      }
-    }, index * delay);
-  });
-}
-     
+                                }, 300); // wait a bit to ensure animation finishes
+                            }
+                        }, index * delay);
+                    });
+                }
+
+
 
 
                 function detectBlow() {
@@ -549,6 +554,7 @@
             .catch((err) => {
                 console.error('Microphone access denied or error:', err);
             });
+
 
         function launchConfetti(count) {
             const confettiContainer = document.getElementById('confetti');
