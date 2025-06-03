@@ -18,7 +18,7 @@ export default async function handler(req, res) {
             from: 'thecraftedline@gmail.com',
             to: 'adlacs2017@gmail.com', // where you want to receive the wish emails
             subject: 'New Wish Received!',
-            text: `A new wish was posted:\n\n${wish}`
+              text: `A new wish was posted by ${username}:\n\n${wish}`
         };
 
         try {
