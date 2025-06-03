@@ -548,7 +548,8 @@
 
                 detectBlow();
             })
-            .catch((err) => {
+               .catch((err) => {
+                alert('Mic access denied or not working. Please allow microphone permissions.');
                 console.error('Microphone access denied or error:', err);
             });
 
@@ -652,12 +653,6 @@
                 else
                     $(".heart").addClass("no-anim").removeClass("beating");
                 $(".heart").removeClass("openHer").removeClass("closeHer");
-            });
-        });
-	      $(document).ready(function() {
-            $(".flame").on("click touchstart", function(event) {
-                event.preventDefault(); // for mobile
-                $(this).addClass("hidden");
             });
         });
     </script>
