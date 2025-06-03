@@ -478,6 +478,16 @@
                 porta, euismod cursus ex. Pellentesque luctus diam eget eros suscipit semper. Sed elementum porta placerat. Cras vulputate justo eros. Aliquam fermentum arcu sed lacus tristique aliquet.</p>
         </div>
     </div>
+    <div style="margin-top: 40px; text-align: center;">
+        <h2 style="font-family: Comic Sans MS; color: white;">🎉 Leave a Birthday Wish 🎉</h2>
+        <textarea id="wishInput" placeholder="Type your birthday wish here..." style="width: 80%; max-width: 400px; height: 60px; font-family: Comic Sans MS; padding: 10px;"></textarea><br>
+        <button onclick="addWish()" style="margin-top: 10px; font-family: Comic Sans MS; background-color: skyblue; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer;">
+        Post Wish
+    </button>
+        <div id="wishWall" style="margin-top: 20px; max-height: 300px; overflow-y: auto; color: white; font-family: Comic Sans MS;"></div>
+    </div>
+
+
     <script>
         const flames = Array.from(document.querySelectorAll('.flame'));
 
@@ -565,6 +575,50 @@
             confetti.style.animationDelay = (Math.random() * 3) + 's';
             confetti.style.animationDuration = (2 + Math.random() * 3) + 's';
             return confetti;
+        }
+
+        async function addWish() {
+            const wishInput = document.getElementById('wishInput');
+            const wishWall = document.getElementById('wishWall');
+            const wishText = wishInput.value.trim();
+
+            if (wishText === '') {
+                alert('Please enter a wish before posting!');
+                return;
+            }
+
+            try {
+                // Send wish to backend API
+                const response = await fetch('api/sendWish', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        wish: wishText
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Show the wish on the page (optional)
+                    const newWish = document.createElement('div');
+                    newWish.textContent = "🎂 " + wishText;
+                    newWish.style.marginBottom = "10px";
+                    wishWall.appendChild(newWish);
+
+                    // Clear the textarea
+                    wishInput.value = '';
+
+                    alert(result.message); // "Wish sent!"
+                } else {
+                    alert('Failed to send wish: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error sending wish:', error);
+                alert('Error sending wish. Try again later.');
+            }
         }
     </script>
     <script>
