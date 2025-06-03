@@ -533,26 +533,19 @@
 
 
 
-                let blowFrameCount = 0;
-const framesNeeded = 3;  // require 3 consecutive frames above threshold
+                 function detectBlow() {
+                    analyser.getByteFrequencyData(dataArray);
+                    const average = dataArray.reduce((acc, val) => acc + val, 0) / bufferLength;
 
-function detectBlow() {
-    analyser.getByteFrequencyData(dataArray);
-    const average = dataArray.reduce((acc, val) => acc + val, 0) / bufferLength;
+                    if (average > 300 && !blownOut) {
+                        blownOut = true;
+                        blowOutFlamesOneByOne();
+                    }
 
-    if (average > 150) {
-        blowFrameCount++;
-    } else {
-        blowFrameCount = 0;
-    }
+                    requestAnimationFrame(detectBlow);
+                }
 
-    if (blowFrameCount >= framesNeeded && !blownOut) {
-        blownOut = true;
-        blowOutFlamesOneByOne();
-    }
-
-    requestAnimationFrame(detectBlow);
-}
+                detectBlow();
             })
             .catch((err) => {
                 console.error('Microphone access denied or error:', err);
