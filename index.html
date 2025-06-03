@@ -505,34 +505,30 @@
 
                 let blownOut = false;
 
-                function blowOutFlamesOneByOne() {
-                    flames.forEach((flame, index) => {
-                        // Randomize delay around 0.1s (+- 50ms)
-                        const delay = 100 + (Math.random() - 0.5) * 100;
-                        setTimeout(() => {
-                            flame.classList.add('hidden');
+              function blowOutFlamesOneByOne() {
+  flames.forEach((flame, index) => {
+    const delay = 100 + (Math.random() - 0.5) * 100;
+    setTimeout(() => {
+      flame.classList.add('hidden');
 
-                            // When last flame hides, launch confetti and play sound
-                            if (index === flames.length - 1) {
-                                setTimeout(() => {
-                                    launchConfetti(100);
+      if (index === flames.length - 1) {
+        setTimeout(() => {
+          launchConfetti(100);
 
-                                    // Play celebration sound
-                                    const sound = document.getElementById('celebrationSound');
-                                    if (sound) {
-                                        sound.play().catch(err => console.log('Autoplay blocked:', err));
-                                    }
+          const sound = document.getElementById('celebrationSound');
+          if (sound) {
+            sound.play().catch(err => console.log('Autoplay blocked:', err));
+          }
 
-                                    // 🌟 Show heart here after last flame
-                                    setTimeout(() => {
-                                        $(".heart").fadeIn(500).addClass("beating");
-                                    }, 4000);
+          setTimeout(() => {
+            $(".heart").fadeIn(500).addClass("beating");
+          }, 4000);
 
-                                }, 300); // wait a bit to ensure animation finishes
-                            }
-                        }, index * delay);
-                    });
-                }
+        }, 300);
+      }
+    }, index * delay);
+  });
+}
 
 
 
