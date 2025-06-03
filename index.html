@@ -533,19 +533,26 @@
 
 
 
-                function detectBlow() {
-                    analyser.getByteFrequencyData(dataArray);
-                    const average = dataArray.reduce((acc, val) => acc + val, 0) / bufferLength;
+                let blowFrameCount = 0;
+const framesNeeded = 3;  // require 3 consecutive frames above threshold
 
-                    if (average > 150 && !blownOut) {
-                        blownOut = true;
-                        blowOutFlamesOneByOne();
-                    }
+function detectBlow() {
+    analyser.getByteFrequencyData(dataArray);
+    const average = dataArray.reduce((acc, val) => acc + val, 0) / bufferLength;
 
-                    requestAnimationFrame(detectBlow);
-                }
+    if (average > 150) {
+        blowFrameCount++;
+    } else {
+        blowFrameCount = 0;
+    }
 
-                detectBlow();
+    if (blowFrameCount >= framesNeeded && !blownOut) {
+        blownOut = true;
+        blowOutFlamesOneByOne();
+    }
+
+    requestAnimationFrame(detectBlow);
+}
             })
             .catch((err) => {
                 console.error('Microphone access denied or error:', err);
