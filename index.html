@@ -601,7 +601,7 @@
                     analyser = audioContext.createAnalyser();
                     const microphone = audioContext.createMediaStreamSource(stream);
                     microphone.connect(analyser);
-                    analyser.fftSize = 512;
+                    analyser.fftSize = 400;
                     bufferLength = analyser.frequencyBinCount;
                     dataArray = new Uint8Array(bufferLength);
 
