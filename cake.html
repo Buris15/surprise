@@ -647,17 +647,15 @@
             return confetti;
         }
 
-      window.onload = async () => {
+    window.onload = async () => {
   const wishWall = document.getElementById('wishWall');
 
   try {
-    const response = await fetch('/api/sendWish');
+    const response = await fetch('/api/sendWish'); // GET wishes
     const wishes = await response.json();
 
-    wishes.forEach(({ username, wish }) => {
-      const newWish = document.createElement('div');
-      newWish.style.marginBottom = "10px";
-      newWish.innerHTML = `<strong>${username}</strong>: 🎂 ${wish}`;
+    wishes.forEach((wishObj, index) => {
+      const newWish = createWishElement(wishObj, index);
       wishWall.appendChild(newWish);
     });
   } catch (error) {
@@ -665,27 +663,71 @@
   }
 };
 
+function createWishElement({ username, wish }, index) {
+  const div = document.createElement('div');
+  div.style.marginBottom = '10px';
+  div.innerHTML = `<strong>${username}</strong>: 🎂 ${wish} `;
+
+  // Create delete button
+  const deleteBtn = document.createElement('button');
+  deleteBtn.textContent = 'Delete';
+  deleteBtn.style.marginLeft = '10px';
+  deleteBtn.onclick = async () => {
+    try {
+      const response = await fetch('/api/sendWish', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ index }),
+      });
+      const result = await response.json();
+
+      if (response.ok) {
+        alert(result.message);
+        div.remove(); // remove from DOM
+      } else {
+        alert('Failed to delete wish: ' + result.message);
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Error deleting wish.');
+    }
+  };
+
+  div.appendChild(deleteBtn);
+  return div;
+}
+
 async function addWish() {
-  // ... your existing code to get input values
+  const wishInput = document.getElementById('wishInput');
+  const usernameInput = document.getElementById('usernameInput');
+  const wishWall = document.getElementById('wishWall');
+  const wishText = wishInput.value.trim();
+  const usernameText = usernameInput.value.trim();
+
+  if (!usernameText) {
+    alert('Please enter your name before posting!');
+    return;
+  }
+  if (!wishText) {
+    alert('Please enter a wish before posting!');
+    return;
+  }
 
   try {
     const response = await fetch('/api/sendWish', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: usernameText, wish: wishText })
+      body: JSON.stringify({ username: usernameText, wish: wishText }),
     });
     const result = await response.json();
 
     if (response.ok) {
-      const newWish = document.createElement('div');
-      newWish.style.marginBottom = "10px";
-      newWish.innerHTML = `<strong>${usernameText}</strong>: 🎂 ${wishText}`;
-      document.getElementById('wishWall').appendChild(newWish);
+      // Add new wish element (with delete button)
+      const newWish = createWishElement({ username: usernameText, wish: wishText }, -1);
+      wishWall.appendChild(newWish);
 
-      // Clear inputs
       wishInput.value = '';
       usernameInput.value = '';
-
       alert(result.message);
     } else {
       alert('Failed to send wish: ' + result.message);
@@ -695,6 +737,7 @@ async function addWish() {
     alert('Error sending wish. Try again later.');
   }
 }
+
 
     </script>
     <script>
