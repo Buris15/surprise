@@ -1,733 +1,360 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Cake</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <style>
-        body {
-            background-color: pink;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-        }
-        
-        h1,
-        p {
-            font-family: 'Hind', sans-serif;
-        }
-        
-        p {
-            text-indent: 50px;
-        }
-        
-        h1 {
-            font-weight: 200;
-        }
-        
-        body {
-            margin: 0px;
-        }
-        
-        .container {
-            position: relative;
-            width: 100%;
-            height: 100vh;
-            overflow: hidden;
-        }
-        
-        .heart {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            text-align: center;
-            transform: translate(-50%, -50%);
-            transition: transform 2s;
-            z-index: 1;
-            display: none;
-        }
-        
-        .heart>img {
-            width: 50px;
-            height: auto;
-        }
-        
-        .message {
-            padding: 20px;
-            background-color: #eee;
-            min-width: 400px;
-            height: 75%;
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 0;
-            overflow: hidden;
-            animation-name: openmsg;
-            animation-duration: 2s;
-            animation-timing-function: linear;
-            animation-play-state: paused;
-            animation-fill-mode: forwards;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
-            border-radius: 5px;
-        }
-        
-        .heart>img:hover {
-            animation-name: beat;
-            animation-duration: 2s;
-            animation-timing-function: ease-in-out;
-            animation-iteration-count: infinite;
-            animation-play-state: running;
-        }
-        
-        @keyframes beat {
-            0% {
-                width: 50px;
-            }
-            25% {
-                width: 58px;
-            }
-            30% {
-                width: 50px;
-            }
-            50% {
-                width: 45px;
-            }
-            60% {
-                width: 50px;
-            }
-            75% {
-                width: 58px;
-            }
-            100% {
-                width: 50px;
-            }
-        }
-        
-        @keyframes openmsg {
-            0% {
-                height: 0px;
-                padding: 0px 20px;
-            }
-            100% {
-                height: 75%;
-                padding: 20px 20px;
-            }
-        }
-        
-        @keyframes heartMove {
-            0% {
-                top: 50%
-            }
-            100% {
-                top: 85%;
-                transform: translate(-50%, 0);
-            }
-        }
-        
-        .openNor {
-            animation-direction: normal;
-            animation-play-state: running;
-        }
-        
-        .closeNor {
-            animation-direction: reverse;
-            animation-play-state: running;
-        }
-        
-        .no-anim {
-            animation: none;
-        }
-        
-        .closed {
-            height: 0px;
-            padding: 0px 20px;
-        }
-        
-        .bottom {
-            bottom: 5px;
-        }
-        
-        .openHer {
-            animation-name: heartMove;
-            animation-duration: 2s;
-            animation-timing-function: linear;
-            animation-play-state: running;
-            animation-fill-mode: forwards;
-        }
-        
-        .closeHer {
-            animation-name: heartMove;
-            animation-duration: 2s;
-            animation-timing-function: linear;
-            animation-play-state: running;
-            animation-direction: reverse;
-            animation-fill-mode: forwards;
-        }
-        
-        .beating>img {
-            animation-name: beat;
-            animation-duration: 2s;
-            animation-timing-function: ease-in-out;
-            animation-iteration-count: infinite;
-            animation-play-state: running;
-        }
-        
-        .openedHer {
-            top: 85%;
-            transform: translate(-50%, 0);
-        }
-        
-        .cake {
-            position: absolute;
-            width: 60vw;
-            max-width: 250px;
-            height: auto;
-            aspect-ratio: 5 / 4;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        
-        .plate {
-            width: 65vw;
-            max-width: 270px;
-            height: 110px;
-            position: absolute;
-            bottom: -10px;
-            left: -10px;
-            background-color: #ccc;
-            border-radius: 50%;
-            box-shadow: 0 2px 0 #b3b3b3, 0 4px 0 #b3b3b3, 0 5px 40px rgba(0, 0, 0, 0.5);
-        }
-        
-        .cake>* {
-            position: absolute;
-        }
-        
-        .layer {
-            width: 100%;
-            height: 100px;
-            border-radius: 50%;
-            background-color: #553c13;
-            box-shadow: 0 2px 0px #6a4b18, 0 4px 0px #33240b, 0 6px 0px #32230b, 0 8px 0px #31230b, 0 10px 0px #30220b, 0 12px 0px #2f220b, 0 14px 0px #2f210a, 0 16px 0px #2e200a, 0 18px 0px #2d200a, 0 20px 0px #2c1f0a, 0 22px 0px #2b1f0a, 0 24px 0px #2a1e09, 0 26px 0px #2a1d09, 0 28px 0px #291d09, 0 30px 0px #281c09;
-        }
-        
-        .layer-top {
-            top: 0;
-        }
-        
-        .layer-middle {
-            top: 33px;
-        }
-        
-        .layer-bottom {
-            top: 66px;
-        }
-        
-        .icing {
-            top: 2px;
-            left: 5px;
-            width: calc(100% - 10px);
-            height: 90px;
-            background-color: #f0e4d0;
-            border-radius: 50%;
-        }
-        
-        .icing:before {
-            content: "";
-            position: absolute;
-            top: 4px;
-            right: 5px;
-            bottom: 6px;
-            left: 5px;
-            background-color: #f4ebdc;
-            box-shadow: 0 0 4px #f6efe3, 0 0 4px #f6efe3, 0 0 4px #f6efe3;
-            border-radius: 50%;
-            z-index: 1;
-        }
-        
-        .drip {
-            display: block;
-            width: 50px;
-            height: 60px;
-            border-bottom-left-radius: 25px;
-            border-bottom-right-radius: 25px;
-            background-color: #f0e4d0;
-        }
-        
-        .drip1 {
-            top: 53px;
-            left: 5px;
-            transform: skewY(15deg);
-            height: 48px;
-            width: 40px;
-        }
-        
-        .drip2 {
-            top: 69px;
-            left: 70%;
-            transform: skewY(-15deg);
-        }
-        
-        .drip3 {
-            top: 54px;
-            left: 36%;
-            width: 80px;
-            border-bottom-left-radius: 40px;
-            border-bottom-right-radius: 40px;
-        }
-        
-        .candle {
-            background-color: #7b020b;
-            width: 8px;
-            height: 40px;
-            border-radius: 8px / 4px;
-            position: absolute;
-            z-index: 10;
-        }
-        
-        .candle:before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 8px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: #ad030f;
-        }
-        
-        .flame {
-            position: absolute;
-            background-color: orange;
-            width: 10px;
-            height: 20px;
-            border-radius: 10px 10px 10px 10px / 25px 25px 10px 10px;
-            top: -24px;
-            left: -20%;
-            transform: translateX(-50%);
-            z-index: 10;
-            box-shadow: 0 0 10px rgba(255, 165, 0, 0.5), 0 0 20px rgba(255, 165, 0, 0.5), 0 0 60px rgba(255, 165, 0, 0.5), 0 0 80px rgba(255, 165, 0, 0.5);
-            transform-origin: 50% 90%;
-            animation: flicker 1s ease-in-out alternate infinite;
-            transition: opacity 0.5s ease;
-            /* smooth fade */
-            opacity: 1;
-        }
-        
-        .flame.hidden {
-            opacity: 0;
-            pointer-events: none;
-            /* optional: prevent interaction after hidden */
-        }
-        
-        @keyframes flicker {
-            0% {
-                transform: skewX(5deg);
-                box-shadow: 0 0 10px rgba(255, 165, 0, 0.2);
-            }
-            25% {
-                transform: skewX(-5deg);
-                box-shadow: 0 0 20px rgba(255, 165, 0, 0.5);
-            }
-            50% {
-                transform: skewX(10deg);
-                box-shadow: 0 0 30px rgba(255, 165, 0, 0.3);
-            }
-            75% {
-                transform: skewX(-10deg);
-                box-shadow: 0 0 40px rgba(255, 165, 0, 0.4);
-            }
-            100% {
-                transform: skewX(5deg);
-                box-shadow: 0 0 50px rgba(255, 165, 0, 0.5);
-            }
-        }
-        
-        #confetti {
-            pointer-events: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            overflow: visible;
-            z-index: 1000;
-        }
-        
-        .confetti-piece {
-            position: absolute;
-            width: 8px;
-            height: 12px;
-            background-color: red;
-            opacity: 0.9;
-            transform-origin: center;
-            animation: fall 2.5s linear forwards;
-            border-radius: 2px;
-        }
-        
-        @keyframes fall {
-            0% {
-                opacity: 1;
-                transform: translateY(0) rotate(0deg);
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(100vh) rotate(360deg);
-            }
-        }
-        
-        #usernameInput,
-        #wishInput {
-            display: block;
-            /* Make both inputs behave like block elements */
-            margin-left: auto;
-            /* Center horizontally */
-            margin-right: auto;
-        }
-        
-        #usernameInput {
-            margin-bottom: 12px;
-            /* Add space below username input */
-            width: 40%;
-            /* Keep desired width */
-            max-width: 200px;
-        }
-        
-        #wishInput {
-            width: 80%;
-            max-width: 400px;
-            height: 60px;
-            padding: 10px;
-            border-radius: 8px;
-            border: none;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capy Login</title>
 </head>
+<style>
+    .login-img:hover,
+    .back-img:hover {
+        transform: scale(1.05);
+        /* Slightly enlarges the button image */
+    }
+    
+    @font-face {
+        font-family: 'MyCustomFont';
+        src: url('ui design/Frisky Puppy.ttf') format('truetype');
+    }
+    
+    body {
+        font-family: 'MyCustomFont', sans-serif;
+        background-color: #70c9c2;
+        /* Use GIF as background */
+        background-size: cover;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        overflow: hidden;
+        /* Prevent scrolling */
+        position: relative;
+        /* Needed for absolute positioning */
+    }
+    
+    .login-container {
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(10px);
+        width: 310px;
+        padding: 20px;
+        border-radius: 30px;
+        box-shadow: 0px 10px 40px 10px rgba(0, 0, 0, 0.5);
+        height: 390px;
+        text-align: center;
+        z-index: 10;
+        /* Keeps it on top */
+    }
+    
+    .logo {
+        position: absolute;
+        top: -50px;
+        left: 100%;
+        transform: translateX(-140%);
+        width: 200px;
+        z-index: 10;
+    }
+    
+    .bean1 {
+        position: absolute;
+        top: -10px;
+        left: 100%;
+        transform: translateX(-1180%);
+        width: 30px;
+        z-index: 10;
+    }
+    
+    .bean2 {
+        position: absolute;
+        top: 50px;
+        left: 100%;
+        transform: translateX(-50%);
+        width: 30px;
+        z-index: 10;
+    }
+    
+    .star1 {
+        position: absolute;
+        top: 110px;
+        left: 110%;
+        transform: translateX(-1180%);
+        width: 30px;
+        z-index: 10;
+    }
+    
+    .star2 {
+        position: absolute;
+        top: 110px;
+        left: 200%;
+        transform: translateX(-1180%);
+        width: 35px;
+        z-index: 10;
+    }
+    
+    input {
+        width: 50%;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 20px;
+        border: none;
+        background-color: #D3F3F4;
+        text-align: center;
+        font-size: 19px;
+        transform: translateY(170%);
+        font-family: 'MyCustomFont';
+        opacity: 50%;
+    }
+    
+    .login-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        transform: translateY(170%);
+    }
+    
+    .login-img {
+        width: 170px;
+        height: auto;
+        transition: 0.3s ease-in-out;
+    }
+    
+    .need-help {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        color: #6e483c;
+        transform: translateX(-50%);
+    }
+    /* Style for the Show Password Button */
+    
+    .show-password-container {
+        text-align: center;
+        margin-top: 10px;
+    }
+    
+    .show-password-btn {
+        background: none;
+        border: none;
+        font-size: 20px;
+        color: #6e483c;
+        cursor: pointer;
+        transform: translate(50px, 70px);
+        font-family: 'MyCustomFont';
+    }
+    
+    label {
+        display: inline-block;
+        width: 100px;
+        /* Adjust width as needed */
+        text-align: right;
+        /* Align text to the right */
+        transform: translateY(450%);
+        margin-right: 10px;
+        font-size: 19px;
+        color: #6e483c;
+    }
+    
+    hr {
+        border: 1px solid #6e483c;
+        width: 80%;
+        transform: translateY(5000%);
+    }
+    
+    .capybara {
+        position: absolute;
+        width: 80px;
+        /* Adjust size */
+        top: -100px;
+        /* Starts way above the viewport */
+        left: 50%;
+        /* Default, but gets randomized in JS */
+        transform: translateX(-50%);
+        z-index: 5;
+        /* Puts it behind the login-container */
+    }
+    
+    @media (max-width: 480px) {
+        .login-container {
+            width: 70%;
+            padding: 15px;
+            height: 350px;
+        }
+        .bean1 {
+            position: absolute;
+            left: 350px;
+            transform: translateX(-1180%);
+            width: 30px;
+            z-index: 10;
+        }
+        .bean2 {
+            position: absolute;
+            top: 50px;
+            left: 100%;
+            transform: translateX(-50%);
+            width: 30px;
+            z-index: 10;
+        }
+        .star1 {
+            position: absolute;
+            transform: translate(-300px, -77px);
+            width: 30px;
+        }
+        .star2 {
+            position: absolute;
+            transform: translate(-370px, -77px);
+            width: 35px;
+        }
+        input {
+            width: 45%;
+            font-size: 16px;
+            transform: translate(50px, 52px);
+        }
+        .logo {
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            z-index: 10;
+        }
+        label {
+            position: absolute;
+            width: 100%;
+            text-align: left;
+            display: block;
+            margin: 5px 0 0;
+            transform: translate(7px, 70px);
+            font-size: 22px;
+            /* Increase this value as needed */
+            font-weight: bold;
+            /* Optional: makes the text bolder */
+        }
+        input::placeholder {
+            font-size: 18px;
+            /* Increase this to make placeholder bigger */
+            color: #888;
+            /* Optional: change placeholder color */
+            opacity: 1;
+            /* Makes sure color is fully visible */
+            font-family: 'MyCustomFont';
+            /* Match your input font if needed */
+        }
+        .login-btn {
+            transform: translateY(90%);
+        }
+        .show-password-container {
+            transform: translateY(0%);
+            margin-top: 10px;
+        }
+        .show-password-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #6e483c;
+            cursor: pointer;
+            transform: translate(50px, 40px);
+            font-family: 'MyCustomFont';
+        }
+        hr {
+            transform: translateY(0%);
+            margin: 20px auto;
+        }
+        .login-img {
+            width: 170px;
+        }
+        .capybara {
+            display: none;
+            /* Optional: hide for small screens */
+        }
+        .need-help {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #6e483c;
+            font-size: 20px;
+            text-align: center;
+            z-index: 999;
+            width: 100%;
+        }
+    }
+</style>
 
 <body>
-    <audio id="celebrationSound" preload="auto">
-  <source src="audio/18.mp3" type="audio/mpeg" />
-  <source src="audio/18.ogg" type="audio/ogg" />
-  <source src="audio/18.wav" type="audio/wav" />
-  Your browser does not support the audio element.
-</audio>
-    <div id="confetti"></div>
 
-    <div class="cake">
-        <div class="plate"></div>
-        <div class="layer layer-bottom"></div>
-        <div class="layer layer-middle"></div>
-        <div class="layer layer-top"></div>
-        <div class="icing"></div>
-        <div class="drip drip1"></div>
-        <div class="drip drip2"></div>
-        <div class="drip drip3"></div>
+    <img src="ui design/capy.png" alt="Capy Logo" class="capy">
 
-        <div class="candle" style="top: 0px; left: 8%;">
-            <div class="flame"></div>
+    <div class="login-container">
+        <img src="ui design/capybara.png" alt="Capy Logo" class="logo">
+        <img src="ui design/bean1.png" alt="bean1" class="bean1">
+        <img src="ui design/bean2.png" alt="bean2" class="bean2">
+        <img src="ui design/star1.png" alt="star1" class="star1">
+        <img src="ui design/star2.png" alt="star2" class="star2">
+
+        <br>
+        <hr>
+
+        <label for="username">Username:</label>
+        <input type="text" id="username" placeholder="Your username" required>
+        <br>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" placeholder="Your password" required>
+        <br>
+
+
+        <!-- Show Password Button Positioned Below -->
+        <div class="show-password-container">
+            <button class="show-password-btn" onclick="togglePassword()">👁️ Show Password</button>
         </div>
-        <div class="candle" style="top: 20px; left: 12%;">
-            <div class="flame"></div>
+
+        <div class="buttons">
+            <button class="login-btn" onclick="validateLogin()">
+    <img src="ui design/loginbutton.png" alt="Login" class="login-img">
+</button>
+
         </div>
-        <div class="candle" style="top: -10px; left: 23%;">
-            <div class="flame"></div>
-        </div>
-        <div class="candle" style="top:35px; left: 20%;">
-            <div class="flame"></div>
-        </div>
-        <div class="candle" style="top: 20px; left: 25%;">
-            <div class="flame"></div>
-        </div>
-        <div class="candle" style="top: -16px; left: 30%;">
-            <div class="flame"></div>
-        </div>
-        <div class="candle" style="top: 12px; left: 35%;">
-            <div class="flame"></div>
-        </div>
-        <div class="candle" style="top: -30px; left: 40%;">
-            <div class="flame"></div>
-        </div>
-        <div class="candle" style="top: 40px; left: 38%;">
-            <div class="flame"></div>
-        </div>
-        <div class="candle" style="top: 0px; left: 45%;">
-            <div class="flame"></div>
-        </div>
-        <div class="candle" style="top: 30px; left: 50%;">
-            <div class="flame"></div>
-        </div>
-        <div class="candle" style="top: -23px; left: 55%;">
-            <div class="flame"></div>
-        </div>
-        <div class="candle" style="top: 20px; left: 60%;">
-            <div class="flame"></div>
-        </div>
-        <div class="candle" style="top: -22px; left: 65%;">
-            <div class="flame"></div>
-        </div>
-        <div class="candle" style="top: 19px; left: 75%;">
-            <div class="flame"></div>
-        </div>
-        <div class="candle" style="top: 35px; left: 70%;">
-            <div class="flame"></div>
-        </div>
-        <div class="candle" style="top: -15px; left: 80%;">
-            <div class="flame"></div>
-        </div>
-        <div class="candle" style="top: 20px; left: 90%;">
-            <div class="flame"></div>
-        </div>
+
     </div>
-    <div class="container">
-        <label>
-	<div class="heart">
-		<img src="https://upload.wikimedia.org/wikipedia/commons/4/42/Love_Heart_SVG.svg"></img>
-	</div>
-	<input id="messageState" type="checkbox" style="display:none"/>
-	</label>
-        <div class="message">
-            <h1>Hi, Ladyboss</h1>
-            <p>secret lng muna</p>
-        </div>
-    </div>
-    <div style="margin-top: 40px; text-align: center; color: white; font-family: 'Comic Sans MS', cursive;">
-        <h2>🎉 Leave a Birthday Wish 🎉</h2>
-
-        <input id="usernameInput" type="text" placeholder="Your name" style="width: 40%; max-width: 100px; padding: 8px; border-radius: 8px; border: none; margin-bottom: 8px; font-family: Comic Sans MS;" required>
-
-
-        <textarea id="wishInput" placeholder="Type your birthday wish here..." style="width: 80%; max-width: 400px; height: 60px; padding: 10px; border-radius: 8px; border: none; font-family: Comic Sans MS;"></textarea><br>
-
-        <button onclick="addWish()" style="margin-top: 10px; background-color: skyblue; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-family: Comic Sans MS;">
-        Post Wish
-    </button>
-
-        <div id="wishWall" style="margin-top: 20px; max-height: 300px; overflow-y: auto; color: white; font-family: Comic Sans MS; text-align: left; padding: 0 10px;">
-        </div>
-    </div>
-
-
-
-
     <script>
-        const flames = Array.from(document.querySelectorAll('.flame'));
-        let audioContext;
-        let analyser;
-        let dataArray;
-        let bufferLength;
-        let blownOut = false;
-
-        // Function to blow out flames one by one
-        function blowOutFlamesOneByOne() {
-            flames.forEach((flame, index) => {
-                // Random delay ±50ms around 100ms
-                const delay = 100 + (Math.random() - 0.5) * 100;
-                setTimeout(() => {
-                    flame.classList.add('hidden');
-
-                    // When last flame is hidden, launch confetti and play sound
-                    if (index === flames.length - 1) {
-                        setTimeout(() => {
-                            launchConfetti(100);
-
-                            // Play celebration sound
-                            const sound = document.getElementById('celebrationSound');
-                            if (sound) {
-                                sound.play().catch(err => console.log('Autoplay blocked:', err));
-                            }
-
-                            // Show heart animation after last flame
-                            setTimeout(() => {
-                                $(".heart").fadeIn(500).addClass("beating");
-                            }, 4000);
-
-                        }, 300);
-                    }
-                }, index * delay);
-            });
-        }
-
-        // Function to launch confetti pieces
-        function launchConfetti(count) {
-            const confettiContainer = document.getElementById('confetti');
-            for (let i = 0; i < count; i++) {
-                const confetti = createConfettiPiece();
-                confettiContainer.appendChild(confetti);
-                confetti.addEventListener('animationend', () => {
-                    confetti.remove();
-                });
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const btn = document.querySelector('.show-password-btn');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                btn.textContent = '🙈 Hide Password';
+            } else {
+                passwordInput.type = 'password';
+                btn.textContent = '👁️ Show Password';
             }
         }
 
-        // Create a single confetti piece element
-        function createConfettiPiece() {
-            const confetti = document.createElement('div');
-            confetti.classList.add('confetti-piece');
-            confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
-            confetti.style.left = Math.random() * 100 + 'vw';
-            confetti.style.animationDelay = (Math.random() * 3) + 's';
-            confetti.style.animationDuration = (2 + Math.random() * 3) + 's';
-            return confetti;
-        }
+        function validateLogin() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
 
-        // Detect blowing by analyzing microphone volume
-        function detectBlow() {
-            analyser.getByteFrequencyData(dataArray);
-            const average = dataArray.reduce((acc, val) => acc + val, 0) / bufferLength;
+            const correctUsername = "Ladyboss";
+            const correctPassword = "Chrysanthemum"; // Replace this with your actual password
 
-            if (average > 100 && !blownOut) {
-                blownOut = true;
-                blowOutFlamesOneByOne();
-            }
-
-            requestAnimationFrame(detectBlow);
-        }
-
-        // Function to start audio processing once user interacts
-        function startAudioProcessing() {
-            if (audioContext && audioContext.state === 'suspended') {
-                audioContext.resume();
-            }
-            navigator.mediaDevices.getUserMedia({
-                    audio: true
-                })
-                .then((stream) => {
-                    audioContext = new(window.AudioContext || window.webkitAudioContext)();
-                    analyser = audioContext.createAnalyser();
-                    const microphone = audioContext.createMediaStreamSource(stream);
-                    microphone.connect(analyser);
-                    analyser.fftSize = 512;
-                    bufferLength = analyser.frequencyBinCount;
-                    dataArray = new Uint8Array(bufferLength);
-
-                    detectBlow();
-                })
-                .catch((err) => {
-                    alert('Mic access denied or not working. Please allow microphone permissions.');
-                    console.error('Microphone access denied or error:', err);
-                });
-
-            // Remove this listener after first run to avoid multiple starts
-            document.body.removeEventListener('click', startAudioProcessing);
-        }
-
-        // Wait for user tap anywhere on the page to start mic and audio context
-        document.body.addEventListener('click', startAudioProcessing);
-
-        function launchConfetti(count) {
-            const confettiContainer = document.getElementById('confetti');
-            for (let i = 0; i < count; i++) {
-                const confetti = createConfettiPiece();
-                confettiContainer.appendChild(confetti);
-                confetti.addEventListener('animationend', () => {
-                    confetti.remove();
-                });
-            }
-        }
-
-        function createConfettiPiece() {
-            const confetti = document.createElement('div');
-            confetti.classList.add('confetti-piece');
-            confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
-            confetti.style.left = Math.random() * 100 + 'vw';
-            confetti.style.animationDelay = (Math.random() * 3) + 's';
-            confetti.style.animationDuration = (2 + Math.random() * 3) + 's';
-            return confetti;
-        }
-
-        async function addWish() {
-            const wishInput = document.getElementById('wishInput');
-            const usernameInput = document.getElementById('usernameInput');
-            const wishWall = document.getElementById('wishWall');
-            const wishText = wishInput.value.trim();
-            const usernameText = usernameInput.value.trim();
-
-            if (usernameText === '') {
-                alert('Please enter your name before posting!');
-                return;
-            }
-
-            if (wishText === '') {
-                alert('Please enter a wish before posting!');
-                return;
-            }
-
-            try {
-                // Send wish and username to backend API
-                const response = await fetch('api/sendWish', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        wish: wishText,
-                        username: usernameText
-                    })
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    // Show the wish and username on the page
-                    const newWish = document.createElement('div');
-                    newWish.style.marginBottom = "10px";
-                    newWish.innerHTML = `<strong>${usernameText}</strong>: 🎂 ${wishText}`;
-                    wishWall.appendChild(newWish);
-
-                    // Clear inputs
-                    wishInput.value = '';
-                    usernameInput.value = '';
-
-                    alert(result.message); // "Wish sent!"
+            if (username === correctUsername) {
+                if (password === correctPassword) {
+                    // Redirect to index.html if login is successful
+                    window.location.href = "cake.html";
                 } else {
-                    alert('Failed to send wish: ' + result.message);
+                    alert("Incorrect password.");
                 }
-            } catch (error) {
-                console.error('Error sending wish:', error);
-                alert('Error sending wish. Try again later.');
+            } else {
+                alert("Incorrect username.");
             }
         }
     </script>
-    <script>
-        $(document).ready(() => {
-            $("#messageState").on("change", (x) => {
-                $(".message").removeClass("openNor").removeClass("closeNor");
-                if ($("#messageState").is(":checked")) {
-                    $(".message").removeClass("closed").removeClass("no-anim").addClass("openNor");
-                    $(".heart").removeClass("closeHer").removeClass("openedHer").addClass("openHer");
-                    $(".container").stop().animate({
-                        "backgroundColor": "#f48fb1"
-                    }, 2000);
-                    console.log("Abrindo");
-                } else {
-                    $(".message").removeClass("no-anim").addClass("closeNor");
-                    $(".heart").removeClass("openHer").removeClass("openedHer").addClass("closeHer");
-                    $(".container").stop().animate({
-                        "backgroundColor": "#fce4ec"
-                    }, 2000);
-                    console.log("fechando");
-                }
-            });
 
-            $(".message").on('webkitAnimationEnd oanimationend msAnimationEnd animationend', function(e) {
-                console.log("Animation End");
-                if ($(".message").hasClass("closeNor"))
-                    $(".message").addClass("closed");
-                $(".message").removeClass("openNor").removeClass("closeNor").addClass("no-anim");
-            });
 
-            $(".heart").on('webkitAnimationEnd oanimationend msAnimationEnd animationend', function(e) {
-                console.log("Animation End");
-                if (!$(".heart").hasClass("closeHer"))
-                    $(".heart").addClass("openedHer").addClass("beating");
-                else
-                    $(".heart").addClass("no-anim").removeClass("beating");
-                $(".heart").removeClass("openHer").removeClass("closeHer");
-            });
-        });
-    </script>
+
+    <p class="need-help">Need help? You may contact the <a href="https://www.facebook.com/profile.php?id=100014715274721" style="color: #c07e6a; text-decoration: none;">admin</a></p>
 </body>
-</html
+
+</html>
