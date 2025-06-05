@@ -647,6 +647,30 @@
             return confetti;
         }
 
+        async function loadWishes() {
+            const wishWall = document.getElementById('wishWall');
+            wishWall.innerHTML = '';
+
+            try {
+                const response = await fetch('api/getWishes');
+                const wishes = await response.json();
+
+                // Show the newest wishes first
+                wishes.reverse().forEach(({
+                    username,
+                    wish
+                }) => {
+                    const div = document.createElement('div');
+                    div.style.marginBottom = '10px';
+                    div.innerHTML = `<strong>${username}</strong>: 🎂 ${wish}`;
+                    wishWall.appendChild(div);
+                });
+            } catch (err) {
+                console.error('Failed to load wishes', err);
+                wishWall.innerHTML = '<p>Could not load wishes.</p>';
+            }
+        }
+
         async function addWish() {
             const wishInput = document.getElementById('wishInput');
             const usernameInput = document.getElementById('usernameInput');
@@ -665,7 +689,6 @@
             }
 
             try {
-                // Send wish and username to backend API
                 const response = await fetch('api/sendWish', {
                     method: 'POST',
                     headers: {
@@ -676,19 +699,14 @@
                         username: usernameText
                     })
                 });
-                const result = await response.json();
-                if (response.ok) {
-                    // Show the wish and username on the page
-                    const newWish = document.createElement('div');
-                    newWish.style.marginBottom = "10px";
-                    newWish.innerHTML = `<strong>${usernameText}</strong>: 🎂 ${wishText}`;
-                    wishWall.appendChild(newWish);
 
-                    // Clear inputs
+                const result = await response.json();
+
+                if (response.ok) {
                     wishInput.value = '';
                     usernameInput.value = '';
-
-                    alert(result.message); // "Wish sent!"
+                    alert(result.message);
+                    loadWishes(); // Reload all wishes to show the new one
                 } else {
                     alert('Failed to send wish: ' + result.message);
                 }
@@ -697,6 +715,9 @@
                 alert('Error sending wish. Try again later.');
             }
         }
+
+        // Load all wishes when page is ready
+        window.addEventListener('DOMContentLoaded', loadWishes);
     </script>
     <script>
         $(document).ready(() => {
