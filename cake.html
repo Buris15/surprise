@@ -647,79 +647,55 @@
             return confetti;
         }
 
-        window.onload = () => {
-            const wishWall = document.getElementById('wishWall');
-            const savedWishes = JSON.parse(localStorage.getItem('wishes') || '[]');
-            savedWishes.forEach(({
-                username,
-                wish
-            }) => {
-                const newWish = document.createElement('div');
-                newWish.style.marginBottom = "10px";
-                newWish.innerHTML = `<strong>${username}</strong>: 🎂 ${wish}`;
-                wishWall.appendChild(newWish);
-            });
-        };
+      window.onload = async () => {
+  const wishWall = document.getElementById('wishWall');
 
-        async function addWish() {
-            const wishInput = document.getElementById('wishInput');
-            const usernameInput = document.getElementById('usernameInput');
-            const wishWall = document.getElementById('wishWall');
-            const wishText = wishInput.value.trim();
-            const usernameText = usernameInput.value.trim();
+  try {
+    const response = await fetch('/api/sendWish');
+    const wishes = await response.json();
 
-            if (usernameText === '') {
-                alert('Please enter your name before posting!');
-                return;
-            }
+    wishes.forEach(({ username, wish }) => {
+      const newWish = document.createElement('div');
+      newWish.style.marginBottom = "10px";
+      newWish.innerHTML = `<strong>${username}</strong>: 🎂 ${wish}`;
+      wishWall.appendChild(newWish);
+    });
+  } catch (error) {
+    console.error('Failed to load wishes:', error);
+  }
+};
 
-            if (wishText === '') {
-                alert('Please enter a wish before posting!');
-                return;
-            }
+async function addWish() {
+  // ... your existing code to get input values
 
-            try {
-                const response = await fetch('api/sendWish', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        wish: wishText,
-                        username: usernameText
-                    })
-                });
-                const result = await response.json();
+  try {
+    const response = await fetch('/api/sendWish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: usernameText, wish: wishText })
+    });
+    const result = await response.json();
 
-                if (response.ok) {
-                    // Add new wish to DOM
-                    const newWish = document.createElement('div');
-                    newWish.style.marginBottom = "10px";
-                    newWish.innerHTML = `<strong>${usernameText}</strong>: 🎂 ${wishText}`;
-                    wishWall.appendChild(newWish);
+    if (response.ok) {
+      const newWish = document.createElement('div');
+      newWish.style.marginBottom = "10px";
+      newWish.innerHTML = `<strong>${usernameText}</strong>: 🎂 ${wishText}`;
+      document.getElementById('wishWall').appendChild(newWish);
 
-                    // Save wish in localStorage
-                    const savedWishes = JSON.parse(localStorage.getItem('wishes') || '[]');
-                    savedWishes.push({
-                        username: usernameText,
-                        wish: wishText
-                    });
-                    localStorage.setItem('wishes', JSON.stringify(savedWishes));
+      // Clear inputs
+      wishInput.value = '';
+      usernameInput.value = '';
 
-                    // Clear inputs
-                    wishInput.value = '';
-                    usernameInput.value = '';
+      alert(result.message);
+    } else {
+      alert('Failed to send wish: ' + result.message);
+    }
+  } catch (error) {
+    console.error('Error sending wish:', error);
+    alert('Error sending wish. Try again later.');
+  }
+}
 
-                    // Optional: Remove alert and replace with inline message
-                    alert(result.message);
-                } else {
-                    alert('Failed to send wish: ' + result.message);
-                }
-            } catch (error) {
-                console.error('Error sending wish:', error);
-                alert('Error sending wish. Try again later.');
-            }
-        }
     </script>
     <script>
         $(document).ready(() => {
