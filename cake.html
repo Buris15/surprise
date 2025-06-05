@@ -514,220 +514,227 @@
         Post Wish
     </button>
 
-        <script>
-            const flames = Array.from(document.querySelectorAll('.flame'));
-            let audioContext;
-            let analyser;
-            let dataArray;
-            let bufferLength;
-            let blownOut = false;
+        <div id="wishWall" style="margin-top: 20px; max-height: 300px; overflow-y: auto; color: white;  font-family: 'MyCustomFont', sans-serif; text-align: left; padding: 0 10px;">
+        </div>
+    </div>
 
-            // Function to blow out flames one by one
-            function blowOutFlamesOneByOne() {
-                flames.forEach((flame, index) => {
-                    // Random delay ±50ms around 100ms
-                    const delay = 100 + (Math.random() - 0.5) * 100;
-                    setTimeout(() => {
-                        flame.classList.add('hidden');
 
-                        // When last flame is hidden, launch confetti and play sound
-                        if (index === flames.length - 1) {
+
+
+    <script>
+        const flames = Array.from(document.querySelectorAll('.flame'));
+        let audioContext;
+        let analyser;
+        let dataArray;
+        let bufferLength;
+        let blownOut = false;
+
+        // Function to blow out flames one by one
+        function blowOutFlamesOneByOne() {
+            flames.forEach((flame, index) => {
+                // Random delay ±50ms around 100ms
+                const delay = 100 + (Math.random() - 0.5) * 100;
+                setTimeout(() => {
+                    flame.classList.add('hidden');
+
+                    // When last flame is hidden, launch confetti and play sound
+                    if (index === flames.length - 1) {
+                        setTimeout(() => {
+                            launchConfetti(100);
+
+                            // Play celebration sound
+                            const sound = document.getElementById('celebrationSound');
+                            if (sound) {
+                                sound.play().catch(err => console.log('Autoplay blocked:', err));
+                            }
+
+                            // Show heart animation after last flame
                             setTimeout(() => {
-                                launchConfetti(100);
+                                $(".heart").fadeIn(500).addClass("beating");
+                            }, 4000);
 
-                                // Play celebration sound
-                                const sound = document.getElementById('celebrationSound');
-                                if (sound) {
-                                    sound.play().catch(err => console.log('Autoplay blocked:', err));
-                                }
-
-                                // Show heart animation after last flame
-                                setTimeout(() => {
-                                    $(".heart").fadeIn(500).addClass("beating");
-                                }, 4000);
-
-                            }, 300);
-                        }
-                    }, index * delay);
-                });
-            }
-
-            // Function to launch confetti pieces
-            function launchConfetti(count) {
-                const confettiContainer = document.getElementById('confetti');
-                for (let i = 0; i < count; i++) {
-                    const confetti = createConfettiPiece();
-                    confettiContainer.appendChild(confetti);
-                    confetti.addEventListener('animationend', () => {
-                        confetti.remove();
-                    });
-                }
-            }
-
-            // Create a single confetti piece element
-            function createConfettiPiece() {
-                const confetti = document.createElement('div');
-                confetti.classList.add('confetti-piece');
-                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
-                confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.animationDelay = (Math.random() * 3) + 's';
-                confetti.style.animationDuration = (2 + Math.random() * 3) + 's';
-                return confetti;
-            }
-
-            // Detect blowing by analyzing microphone volume
-            function detectBlow() {
-                analyser.getByteFrequencyData(dataArray);
-                const average = dataArray.reduce((acc, val) => acc + val, 0) / bufferLength;
-
-                if (average > 100 && !blownOut) {
-                    blownOut = true;
-                    blowOutFlamesOneByOne();
-                }
-
-                requestAnimationFrame(detectBlow);
-            }
-
-            // Function to start audio processing once user interacts
-            function startAudioProcessing() {
-                if (audioContext && audioContext.state === 'suspended') {
-                    audioContext.resume();
-                }
-                navigator.mediaDevices.getUserMedia({
-                        audio: true
-                    })
-                    .then((stream) => {
-                        audioContext = new(window.AudioContext || window.webkitAudioContext)();
-                        analyser = audioContext.createAnalyser();
-                        const microphone = audioContext.createMediaStreamSource(stream);
-                        microphone.connect(analyser);
-                        analyser.fftSize = 512;
-                        bufferLength = analyser.frequencyBinCount;
-                        dataArray = new Uint8Array(bufferLength);
-
-                        detectBlow();
-                    })
-                    .catch((err) => {
-                        alert('Mic access denied or not working. Please allow microphone permissions.');
-                        console.error('Microphone access denied or error:', err);
-                    });
-
-                // Remove this listener after first run to avoid multiple starts
-                document.body.removeEventListener('click', startAudioProcessing);
-            }
-
-            // Wait for user tap anywhere on the page to start mic and audio context
-            document.body.addEventListener('click', startAudioProcessing);
-
-            function launchConfetti(count) {
-                const confettiContainer = document.getElementById('confetti');
-                for (let i = 0; i < count; i++) {
-                    const confetti = createConfettiPiece();
-                    confettiContainer.appendChild(confetti);
-                    confetti.addEventListener('animationend', () => {
-                        confetti.remove();
-                    });
-                }
-            }
-
-            function createConfettiPiece() {
-                const confetti = document.createElement('div');
-                confetti.classList.add('confetti-piece');
-                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
-                confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.animationDelay = (Math.random() * 3) + 's';
-                confetti.style.animationDuration = (2 + Math.random() * 3) + 's';
-                return confetti;
-            }
-
-            async function addWish() {
-                const wishInput = document.getElementById('wishInput');
-                const usernameInput = document.getElementById('usernameInput');
-                const wishWall = document.getElementById('wishWall');
-                const wishText = wishInput.value.trim();
-                const usernameText = usernameInput.value.trim();
-
-                if (usernameText === '') {
-                    alert('Please enter your name before posting!');
-                    return;
-                }
-
-                if (wishText === '') {
-                    alert('Please enter a wish before posting!');
-                    return;
-                }
-
-                try {
-                    // Send wish and username to backend API
-                    const response = await fetch('api/sendWish', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            wish: wishText,
-                            username: usernameText
-                        })
-                    });
-                    const result = await response.json();
-                    if (response.ok) {
-                        // Show the wish and username on the page
-                        const newWish = document.createElement('div');
-                        newWish.style.marginBottom = "10px";
-                        newWish.innerHTML = `<strong>${usernameText}</strong>: 🎂 ${wishText}`;
-                        wishWall.appendChild(newWish);
-
-                        // Clear inputs
-                        wishInput.value = '';
-                        usernameInput.value = '';
-
-                        alert(result.message); // "Wish sent!"
-                    } else {
-                        alert('Failed to send wish: ' + result.message);
+                        }, 300);
                     }
-                } catch (error) {
-                    console.error('Error sending wish:', error);
-                    alert('Error sending wish. Try again later.');
-                }
-            }
-        </script>
-        <script>
-            $(document).ready(() => {
-                $("#messageState").on("change", (x) => {
-                    $(".message").removeClass("openNor").removeClass("closeNor");
-                    if ($("#messageState").is(":checked")) {
-                        $(".message").removeClass("closed").removeClass("no-anim").addClass("openNor");
-                        $(".heart").removeClass("closeHer").removeClass("openedHer").addClass("openHer");
-                        $(".container").stop().animate({
-                            "backgroundColor": "#f48fb1"
-                        }, 2000);
-                        console.log("Abrindo");
-                    } else {
-                        $(".message").removeClass("no-anim").addClass("closeNor");
-                        $(".heart").removeClass("openHer").removeClass("openedHer").addClass("closeHer");
-                        $(".container").stop().animate({
-                            "backgroundColor": "#fce4ec"
-                        }, 2000);
-                        console.log("fechando");
-                    }
-                });
-
-                $(".message").on('webkitAnimationEnd oanimationend msAnimationEnd animationend', function(e) {
-                    console.log("Animation End");
-                    if ($(".message").hasClass("closeNor"))
-                        $(".message").addClass("closed");
-                    $(".message").removeClass("openNor").removeClass("closeNor").addClass("no-anim");
-                });
-
-                $(".heart").on('webkitAnimationEnd oanimationend msAnimationEnd animationend', function(e) {
-                    console.log("Animation End");
-                    if (!$(".heart").hasClass("closeHer"))
-                        $(".heart").addClass("openedHer").addClass("beating");
-                    else
-                        $(".heart").addClass("no-anim").removeClass("beating");
-                    $(".heart").removeClass("openHer").removeClass("closeHer");
-                });
+                }, index * delay);
             });
-        </script>
+        }
+
+        // Function to launch confetti pieces
+        function launchConfetti(count) {
+            const confettiContainer = document.getElementById('confetti');
+            for (let i = 0; i < count; i++) {
+                const confetti = createConfettiPiece();
+                confettiContainer.appendChild(confetti);
+                confetti.addEventListener('animationend', () => {
+                    confetti.remove();
+                });
+            }
+        }
+
+        // Create a single confetti piece element
+        function createConfettiPiece() {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti-piece');
+            confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.animationDelay = (Math.random() * 3) + 's';
+            confetti.style.animationDuration = (2 + Math.random() * 3) + 's';
+            return confetti;
+        }
+
+        // Detect blowing by analyzing microphone volume
+        function detectBlow() {
+            analyser.getByteFrequencyData(dataArray);
+            const average = dataArray.reduce((acc, val) => acc + val, 0) / bufferLength;
+
+            if (average > 100 && !blownOut) {
+                blownOut = true;
+                blowOutFlamesOneByOne();
+            }
+
+            requestAnimationFrame(detectBlow);
+        }
+
+        // Function to start audio processing once user interacts
+        function startAudioProcessing() {
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            navigator.mediaDevices.getUserMedia({
+                    audio: true
+                })
+                .then((stream) => {
+                    audioContext = new(window.AudioContext || window.webkitAudioContext)();
+                    analyser = audioContext.createAnalyser();
+                    const microphone = audioContext.createMediaStreamSource(stream);
+                    microphone.connect(analyser);
+                    analyser.fftSize = 512;
+                    bufferLength = analyser.frequencyBinCount;
+                    dataArray = new Uint8Array(bufferLength);
+
+                    detectBlow();
+                })
+                .catch((err) => {
+                    alert('Mic access denied or not working. Please allow microphone permissions.');
+                    console.error('Microphone access denied or error:', err);
+                });
+
+            // Remove this listener after first run to avoid multiple starts
+            document.body.removeEventListener('click', startAudioProcessing);
+        }
+
+        // Wait for user tap anywhere on the page to start mic and audio context
+        document.body.addEventListener('click', startAudioProcessing);
+
+        function launchConfetti(count) {
+            const confettiContainer = document.getElementById('confetti');
+            for (let i = 0; i < count; i++) {
+                const confetti = createConfettiPiece();
+                confettiContainer.appendChild(confetti);
+                confetti.addEventListener('animationend', () => {
+                    confetti.remove();
+                });
+            }
+        }
+
+        function createConfettiPiece() {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti-piece');
+            confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 60%)`;
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.animationDelay = (Math.random() * 3) + 's';
+            confetti.style.animationDuration = (2 + Math.random() * 3) + 's';
+            return confetti;
+        }
+
+        async function addWish() {
+            const wishInput = document.getElementById('wishInput');
+            const usernameInput = document.getElementById('usernameInput');
+            const wishWall = document.getElementById('wishWall');
+            const wishText = wishInput.value.trim();
+            const usernameText = usernameInput.value.trim();
+
+            if (usernameText === '') {
+                alert('Please enter your name before posting!');
+                return;
+            }
+
+            if (wishText === '') {
+                alert('Please enter a wish before posting!');
+                return;
+            }
+
+            try {
+                // Send wish and username to backend API
+                const response = await fetch('api/sendWish', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        wish: wishText,
+                        username: usernameText
+                    })
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    // Show the wish and username on the page
+                    const newWish = document.createElement('div');
+                    newWish.style.marginBottom = "10px";
+                    newWish.innerHTML = `<strong>${usernameText}</strong>: 🎂 ${wishText}`;
+                    wishWall.appendChild(newWish);
+
+                    // Clear inputs
+                    wishInput.value = '';
+                    usernameInput.value = '';
+
+                    alert(result.message); // "Wish sent!"
+                } else {
+                    alert('Failed to send wish: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error sending wish:', error);
+                alert('Error sending wish. Try again later.');
+            }
+        }
+    </script>
+    <script>
+        $(document).ready(() => {
+            $("#messageState").on("change", (x) => {
+                $(".message").removeClass("openNor").removeClass("closeNor");
+                if ($("#messageState").is(":checked")) {
+                    $(".message").removeClass("closed").removeClass("no-anim").addClass("openNor");
+                    $(".heart").removeClass("closeHer").removeClass("openedHer").addClass("openHer");
+                    $(".container").stop().animate({
+                        "backgroundColor": "#f48fb1"
+                    }, 2000);
+                    console.log("Abrindo");
+                } else {
+                    $(".message").removeClass("no-anim").addClass("closeNor");
+                    $(".heart").removeClass("openHer").removeClass("openedHer").addClass("closeHer");
+                    $(".container").stop().animate({
+                        "backgroundColor": "#fce4ec"
+                    }, 2000);
+                    console.log("fechando");
+                }
+            });
+
+            $(".message").on('webkitAnimationEnd oanimationend msAnimationEnd animationend', function(e) {
+                console.log("Animation End");
+                if ($(".message").hasClass("closeNor"))
+                    $(".message").addClass("closed");
+                $(".message").removeClass("openNor").removeClass("closeNor").addClass("no-anim");
+            });
+
+            $(".heart").on('webkitAnimationEnd oanimationend msAnimationEnd animationend', function(e) {
+                console.log("Animation End");
+                if (!$(".heart").hasClass("closeHer"))
+                    $(".heart").addClass("openedHer").addClass("beating");
+                else
+                    $(".heart").addClass("no-anim").removeClass("beating");
+                $(".heart").removeClass("openHer").removeClass("closeHer");
+            });
+        });
+    </script>
 </body>
 </html
