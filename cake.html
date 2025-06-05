@@ -647,6 +647,20 @@
             return confetti;
         }
 
+        window.onload = () => {
+            const wishWall = document.getElementById('wishWall');
+            const savedWishes = JSON.parse(localStorage.getItem('wishes') || '[]');
+            savedWishes.forEach(({
+                username,
+                wish
+            }) => {
+                const newWish = document.createElement('div');
+                newWish.style.marginBottom = "10px";
+                newWish.innerHTML = `<strong>${username}</strong>: 🎂 ${wish}`;
+                wishWall.appendChild(newWish);
+            });
+        };
+
         async function addWish() {
             const wishInput = document.getElementById('wishInput');
             const usernameInput = document.getElementById('usernameInput');
@@ -665,7 +679,6 @@
             }
 
             try {
-                // Send wish and username to backend API
                 const response = await fetch('api/sendWish', {
                     method: 'POST',
                     headers: {
@@ -677,18 +690,28 @@
                     })
                 });
                 const result = await response.json();
+
                 if (response.ok) {
-                    // Show the wish and username on the page
+                    // Add new wish to DOM
                     const newWish = document.createElement('div');
                     newWish.style.marginBottom = "10px";
                     newWish.innerHTML = `<strong>${usernameText}</strong>: 🎂 ${wishText}`;
                     wishWall.appendChild(newWish);
 
+                    // Save wish in localStorage
+                    const savedWishes = JSON.parse(localStorage.getItem('wishes') || '[]');
+                    savedWishes.push({
+                        username: usernameText,
+                        wish: wishText
+                    });
+                    localStorage.setItem('wishes', JSON.stringify(savedWishes));
+
                     // Clear inputs
                     wishInput.value = '';
                     usernameInput.value = '';
 
-                    alert(result.message); // "Wish sent!"
+                    // Optional: Remove alert and replace with inline message
+                    alert(result.message);
                 } else {
                     alert('Failed to send wish: ' + result.message);
                 }
