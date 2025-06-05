@@ -1,24 +1,41 @@
+import fs from 'fs';
+import path from 'path';
 import nodemailer from 'nodemailer';
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
-          const { wish, username } = req.body;
+        const { wish, username } = req.body;
+
+        if (!wish || !username) {
+            return res.status(400).json({ message: 'Missing wish or username.' });
+        }
+
         console.log("Received wish:", wish);
         console.log("From user:", username);
 
+        // Save to JSON file
+        const filePath = path.join(process.cwd(), 'wishes.json');
+        const existingWishes = fs.existsSync(filePath) ?
+            JSON.parse(fs.readFileSync(filePath, 'utf8')) :
+            [];
+
+        existingWishes.push({ username, wish });
+        fs.writeFileSync(filePath, JSON.stringify(existingWishes, null, 2));
+
+        // Send email
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: 'thecraftedline@gmail.com', // your sender Gmail
-                pass: 'pgve kldn meni xnpy' // your Gmail app password
+                user: 'thecraftedline@gmail.com',
+                pass: 'pgve kldn meni xnpy'
             }
         });
 
         const mailOptions = {
             from: 'thecraftedline@gmail.com',
-            to: 'adlacs2017@gmail.com', // where you want to receive the wish emails
+            to: 'adlacs2017@gmail.com',
             subject: 'New Wish Received!',
-              text: `A new wish was posted by ${username}:\n\n${wish}`
+            text: `A new wish from ${username}:\n\n${wish}`
         };
 
         try {
